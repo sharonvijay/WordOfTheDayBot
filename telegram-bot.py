@@ -13,7 +13,7 @@ load_dotenv()
 
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 WORDNIK_API_KEY = os.getenv("WORDNIK_API_KEY")
-CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")  # Your Telegram chat/group ID
+CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 # Timezone for scheduling
 IST = pytz.timezone("Asia/Kolkata")
@@ -43,7 +43,7 @@ async def get_word_of_the_day():
 
         word = data.get("word", "Unknown")
         definition = data["definitions"][0]["text"] if data.get("definitions") else "No definition found."
-        example = get_example_sentence(word)
+        example = data["examples"][0]["text"] if data.get("examples") else "No example available."
 
         return f"📖 *Word of the Day:* {word}\n📝 *Meaning:* {definition}\n✍️ *Example:* {example}"
     
@@ -51,22 +51,6 @@ async def get_word_of_the_day():
         print(f"⚠️ API request failed: {e}. Using static word.")
         return get_static_word()
 
-def get_example_sentence(word):
-    """Fetch example sentence from Wordnik API."""
-    example_url = f"https://api.wordnik.com/v4/word.json/{word}/examples?api_key={WORDNIK_API_KEY}"
-    
-    try:
-        response = requests.get(example_url)
-        response.raise_for_status()
-        data = response.json()
-
-        if data.get("examples"):
-            return data["examples"][0]["text"]
-        else:
-            return "No example sentence found."
-    
-    except requests.exceptions.RequestException:
-        return "No example sentence available."
 
 def get_static_word():
     """Returns a random word, definition, and example sentence from the predefined list."""
